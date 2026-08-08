@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 MODEL_PATH = os.path.join(PROJECT_ROOT, 'training', 'models', 'best_model.pkl')
+SCALER_PATH = os.path.join(PROJECT_ROOT, 'preprocessing', 'models', 'scaler.pkl')
 
 
 def get_best_model():
@@ -24,6 +25,18 @@ def get_best_model():
         return joblib.load(MODEL_PATH)
     except Exception as exc:
         logger.exception(f"Failed to load training model from {MODEL_PATH}: {exc}")
+        return None
+
+
+def get_scaler():
+    """Load the trained feature scaler from the preprocessing models folder."""
+    if not os.path.exists(SCALER_PATH):
+        logger.error(f"Scaler not found at {SCALER_PATH}")
+        return None
+    try:
+        return joblib.load(SCALER_PATH)
+    except Exception as exc:
+        logger.exception(f"Failed to load scaler from {SCALER_PATH}: {exc}")
         return None
 
 def get_outward_ip():
@@ -190,7 +203,22 @@ class MLPredictionEngine:
         }
 
         ordered_values = [payload.get(name, 0) for name in feature_names]
-        return pd.DataFrame([ordered_values], columns=feature_names), model
+        df = pd.DataFrame([ordered_values], columns=feature_names)
+
+        # Scale numerical features if scaler is available
+        scaler = get_scaler()
+        if scaler is not None:
+            numerical_columns = [
+                "Port", "Packets", "Bytes", "Request Count", "Login Attempts",
+                "CPU Usage", "Memory Usage", "Response Time"
+            ]
+            cols_to_scale = [col for col in numerical_columns if col in df.columns]
+            if cols_to_scale:
+                df[cols_to_scale] = scaler.transform(df[cols_to_scale])
+        else:
+            logger.warning("Scaler not available. Features remain unscaled, which may trigger false positive anomalies.")
+
+        return df, model
 
     @staticmethod
     def predict_login_anomaly(features):
