@@ -77,6 +77,7 @@ def create_app(config_class=Config):
 
         # Seed an admin user automatically if no user exists for test convenience
         seed_admin_user()
+        clear_env_blocked_ip()
 
     return app
 
@@ -103,3 +104,36 @@ def seed_admin_user():
         except Exception as e:
             db.session.rollback()
             print(f"Error seeding admin user: {e}")
+
+
+def clear_env_blocked_ip():
+    """
+    Clears stale database blocks and failed activity logs for the IP specified
+    in the CLEAR_BLOCKED_IP environment variable.
+    """
+    import os
+    target_ip = os.environ.get('CLEAR_BLOCKED_IP')
+    if not target_ip:
+        return
+
+    # Basic sanitization / validation
+    target_ip = target_ip.strip()
+    if not target_ip:
+        return
+
+    from app.models import db, BlockedIP, ActivityLog
+    try:
+        # Delete only matching BlockedIP
+        deleted_blocks = db.session.query(BlockedIP).filter_by(ip_address=target_ip).delete()
+        
+        # Delete only matching login_failed logs
+        deleted_logs = db.session.query(ActivityLog).filter_by(ip_address=target_ip, action='login_failed').delete()
+        
+        if deleted_blocks > 0 or deleted_logs > 0:
+            db.session.commit()
+            print(f"[STARTUP] Successfully cleared {deleted_blocks} block(s) and {deleted_logs} log(s) for IP: {target_ip}")
+        else:
+            print(f"[STARTUP] No records found to clear for IP: {target_ip}")
+    except Exception as e:
+        db.session.rollback()
+        print(f"[STARTUP] Error clearing IP records for {target_ip}: {e}")

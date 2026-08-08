@@ -168,5 +168,81 @@ class TestLoginPipeline(unittest.TestCase):
         self.assertIsNone(blocked, "IP was incorrectly blocked due to stale (>24h) failed attempts!")
         print("[TEST_TIME_WINDOW] Stale failed attempts successfully excluded from risk calculation.")
 
+    def test_env_var_clears_blocked_ip_when_set(self):
+        """Verify that clear_env_blocked_ip deletes the specified IP block and logs, while leaving others untouched."""
+        from app import clear_env_blocked_ip
+        
+        target_ip = "198.51.200.1"
+        other_ip = "198.51.200.2"
+        
+        # Clean up database tables for these test IPs
+        BlockedIP.query.filter(BlockedIP.ip_address.in_([target_ip, other_ip])).delete()
+        ActivityLog.query.filter(ActivityLog.ip_address.in_([target_ip, other_ip])).delete()
+        db.session.commit()
+        
+        # Insert blocks
+        db.session.add(BlockedIP(ip_address=target_ip, reason="Test block target"))
+        db.session.add(BlockedIP(ip_address=other_ip, reason="Test block other"))
+        
+        # Insert activity logs
+        db.session.add(ActivityLog(ip_address=target_ip, action='login_failed', risk_score=0.71))
+        db.session.add(ActivityLog(ip_address=other_ip, action='login_failed', risk_score=0.71))
+        db.session.commit()
+        
+        # Set env var
+        os.environ['CLEAR_BLOCKED_IP'] = target_ip
+        
+        try:
+            # Run cleanup
+            clear_env_blocked_ip()
+            
+            # Assertions
+            # Target IP must be deleted
+            self.assertIsNone(BlockedIP.query.filter_by(ip_address=target_ip).first())
+            self.assertEqual(ActivityLog.query.filter_by(ip_address=target_ip, action='login_failed').count(), 0)
+            
+            # Other IP must remain untouched
+            self.assertIsNotNone(BlockedIP.query.filter_by(ip_address=other_ip).first())
+            self.assertEqual(ActivityLog.query.filter_by(ip_address=other_ip, action='login_failed').count(), 1)
+            
+        finally:
+            # Cleanup
+            os.environ.pop('CLEAR_BLOCKED_IP', None)
+            BlockedIP.query.filter(BlockedIP.ip_address.in_([target_ip, other_ip])).delete()
+            ActivityLog.query.filter(ActivityLog.ip_address.in_([target_ip, other_ip])).delete()
+            db.session.commit()
+
+    def test_env_var_does_nothing_when_absent(self):
+        """Verify that clear_env_blocked_ip does nothing when the environment variable is absent."""
+        from app import clear_env_blocked_ip
+        
+        target_ip = "198.51.200.1"
+        
+        # Clean up database tables for these test IPs
+        BlockedIP.query.filter_by(ip_address=target_ip).delete()
+        ActivityLog.query.filter_by(ip_address=target_ip).delete()
+        db.session.commit()
+        
+        # Insert block
+        db.session.add(BlockedIP(ip_address=target_ip, reason="Test block target"))
+        db.session.add(ActivityLog(ip_address=target_ip, action='login_failed', risk_score=0.71))
+        db.session.commit()
+        
+        # Ensure env var is absent
+        os.environ.pop('CLEAR_BLOCKED_IP', None)
+        
+        try:
+            # Run cleanup
+            clear_env_blocked_ip()
+            
+            # Target IP must NOT be deleted
+            self.assertIsNotNone(BlockedIP.query.filter_by(ip_address=target_ip).first())
+            self.assertEqual(ActivityLog.query.filter_by(ip_address=target_ip, action='login_failed').count(), 1)
+            
+        finally:
+            BlockedIP.query.filter_by(ip_address=target_ip).delete()
+            ActivityLog.query.filter_by(ip_address=target_ip).delete()
+            db.session.commit()
+
 if __name__ == '__main__':
     unittest.main()
