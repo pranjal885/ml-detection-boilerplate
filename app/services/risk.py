@@ -144,7 +144,7 @@ def handle_login_attempt(email, ip_address, user_agent, success, user_id=None):
     )
     db.session.add(log)
 
-    if risk_percentage >= 81:
+    if risk_percentage >= 81 and not success:
         event_bus.dispatch(
             'security.block_ip',
             ip_address=ip_address,

@@ -1,5 +1,5 @@
 from functools import wraps
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, g
 from app.models import db, User, ActivityLog
 from app.services.events import event_bus
@@ -150,9 +150,11 @@ def login():
             # Engineered features to feed the ML Prediction Engine.
             # Keep compatibility with the legacy feature names while supplying the model's
             # exact numeric inputs expected by the trained estimator.
+            time_window = datetime.utcnow() - timedelta(hours=24)
             failed_login_count = ActivityLog.query.filter(
                 ActivityLog.action == 'login_failed',
-                ActivityLog.ip_address == ip
+                ActivityLog.ip_address == ip,
+                ActivityLog.timestamp >= time_window
             ).count()
             location_anomaly = anomalies['new_location']
             device_anomaly = anomalies['new_browser'] or anomalies['new_platform']
@@ -239,9 +241,11 @@ def login():
             
             # Treat incorrect passwords as suspicious attacker activity automatically.
             # Keep the same route logic and session behavior while using the real ML signal.
+            time_window = datetime.utcnow() - timedelta(hours=24)
             failed_login_count = ActivityLog.query.filter(
                 ActivityLog.action == 'login_failed',
-                ActivityLog.ip_address == ip
+                ActivityLog.ip_address == ip,
+                ActivityLog.timestamp >= time_window
             ).count()
             model_features = {
                 'time_of_day': datetime.now().hour,
