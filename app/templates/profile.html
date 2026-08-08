@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}CloudShield AI - Profile Security Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Profile Edit Form Column -->
+    <div class="col-md-7 mb-4">
+        <div class="soc-card h-100">
+            <h4 class="mb-3 text-light"><i class="bi bi-person-gear text-primary me-2"></i>Profile Settings</h4>
+            <p class="text-secondary-custom small">Configure user account details and security access parameters</p>
+            <hr class="border-secondary mb-4" style="border-color: var(--border-color) !important;">
+            
+            <form action="{{ url_for('auth.profile') }}" method="POST">
+                <!-- Username -->
+                <div class="mb-3">
+                    <label for="username" class="form-label text-secondary-custom small mb-1">Principal Name</label>
+                    <input type="text" class="form-control form-soc" id="username" name="username" value="{{ g.user.username }}" required>
+                </div>
+                
+                <!-- Email (Readonly) -->
+                <div class="mb-4">
+                    <label for="email" class="form-label text-secondary-custom small mb-1">Security Identifier (Email - Immutable)</label>
+                    <input type="email" class="form-control form-soc text-muted" id="email" value="{{ g.user.email }}" readonly style="opacity: 0.65;">
+                </div>
+                
+                <h5 class="mt-4 mb-2 text-warning"><i class="bi text-warning bi-key-fill me-2"></i>Change Authorization Code</h5>
+                <p class="text-secondary-custom small">Complete this section to rotate security access keys.</p>
+                
+                <!-- Current Password -->
+                <div class="mb-3">
+                    <label for="current_password" class="form-label text-secondary-custom small mb-1">Current Password</label>
+                    <input type="password" class="form-control form-soc" id="current_password" name="current_password" placeholder="Verify current credentials" required autocomplete="current-password">
+                </div>
+                
+                <!-- New Password -->
+                <div class="mb-4">
+                    <label for="new_password" class="form-label text-secondary-custom small mb-1">New Password</label>
+                    <input type="password" class="form-control form-soc" id="new_password" name="new_password" placeholder="Leave blank to maintain current" autocomplete="new-password">
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <span class="text-secondary-custom small">Enrolled: {{ g.user.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    <button type="submit" class="btn btn-soc-primary px-4">
+                        <i class="bi bi-save me-2"></i>Update Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Security Account Status Column -->
+    <div class="col-md-5 mb-4">
+        <div class="soc-card h-100 d-flex flex-column">
+            <h4 class="mb-3 text-light"><i class="bi bi-shield-check text-success me-2"></i>Identity Verification Profile</h4>
+            <p class="text-secondary-custom small">Current active session authorization state</p>
+            <hr class="border-secondary mb-4" style="border-color: var(--border-color) !important;">
+            
+            <div class="mb-4">
+                <span class="text-secondary-custom d-block small">Role Assignment</span>
+                <span class="badge bg-secondary text-light mt-1 px-3 py-2 rounded-1 border border-secondary" style="font-size: 0.75rem;">
+                    <i class="bi {% if g.user.role == 'admin' %}bi-patch-check-fill text-warning{% else %}bi-person-fill{% endif %} me-1"></i>
+                    {{ g.user.role.upper() }}
+                </span>
+            </div>
+            
+            <div class="mb-4">
+                <span class="text-secondary-custom d-block small">Firewall Status</span>
+                <span class="badge bg-success-subtle text-success border border-success mt-1 px-3 py-2 rounded-1" style="font-size: 0.75rem;">
+                    <i class="bi bi-shield-fill-check me-1"></i>MONITORED BY CLOUDSHIELD AI
+                </span>
+            </div>
+
+            <div class="mb-4">
+                <span class="text-secondary-custom d-block small">Active Request IP</span>
+                <code class="text-warning d-inline-block mt-1 bg-black px-2 py-1 rounded" style="font-size: 0.85rem; border: 1px solid var(--border-color);">
+                    <i class="bi bi-laptop me-1"></i>{{ request.remote_addr }}
+                </code>
+            </div>
+            
+            <div class="mt-auto">
+                <div class="alert alert-dark soc-card bg-dark border-secondary p-3 mt-4 mb-0">
+                    <div class="d-flex">
+                        <i class="bi bi-info-circle text-info me-3" style="font-size: 1.25rem;"></i>
+                        <div>
+                            <h6 class="mb-1 text-light">Audit Policy</h6>
+                            <p class="mb-0 text-secondary-custom small" style="line-height: 1.4; font-size: 0.8rem;">
+                                In compliance with security standards, all credential changes generate immediate timeline notifications. Verify all history actions in the <a href="{{ url_for('main.logs') }}" class="text-primary text-decoration-none fw-medium">Security Logs</a>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

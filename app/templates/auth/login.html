@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}CloudShield AI - System Login{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="soc-card" style="max-width: 420px; width: 100%; padding: 2.25rem;">
+        <div class="text-center mb-4">
+            <i class="bi bi-shield-lock-fill text-primary" style="font-size: 2.5rem;"></i>
+            <h3 class="mt-2 mb-1">Authenticate Session</h3>
+            <p class="text-secondary-custom small">Enter credentials to unlock CloudShield AI console</p>
+        </div>
+        
+        <form action="{{ url_for('auth.login') }}" method="POST">
+            <!-- Email Input -->
+            <div class="mb-3">
+                <label for="email" class="form-label text-secondary-custom small mb-1">Security Identifier (Email)</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-secondary text-secondary" style="border-color: var(--border-color) !important; border-radius: 4px 0 0 4px;"><i class="bi bi-envelope"></i></span>
+                    <input type="email" class="form-control form-soc" id="email" name="email" placeholder="principal@domain.com" required autocomplete="email" style="border-radius: 0 4px 4px 0 !important;">
+                </div>
+            </div>
+            
+            <!-- Password Input -->
+            <div class="mb-4">
+                <label for="password" class="form-label text-secondary-custom small mb-1">Authorization Code (Password)</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-secondary text-secondary" style="border-color: var(--border-color) !important; border-radius: 4px 0 0 4px;"><i class="bi bi-key"></i></span>
+                    <input type="password" class="form-control form-soc" id="password" name="password" placeholder="••••••••" required autocomplete="current-password" style="border-radius: 0 4px 4px 0 !important;">
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-soc-primary py-2">
+                    <i class="bi bi-unlock-fill me-2"></i>Authenticate Session
+                </button>
+            </div>
+        </form>
+        
+        <div class="text-center mt-3 border-top border-secondary pt-3" style="border-color: var(--border-color) !important;">
+            <p class="text-secondary-custom small mb-0">First time connecting? <a href="{{ url_for('auth.register') }}" class="text-primary text-decoration-none fw-medium">Register Security Keys</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,971 @@
+/* ===========================================================
+   CloudShield
+   Enterprise SOC Design System
+   Orange Enterprise Edition
+   =========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ===========================================================
+   ROOT COLORS
+   =========================================================== */
+
+:root{
+
+    /* Background */
+
+    --bg-main:#0F172A;
+
+    --bg-sidebar:#111827;
+
+    --bg-card:#1E293B;
+
+    --border-color:#334155;
+
+    /* Enterprise Orange */
+
+    --primary:#EA580C;
+
+    --primary-hover:#C2410C;
+
+    --primary-light:#FB923C;
+
+    /* Status Colors */
+
+    --color-success:#22C55E;
+
+    --color-warning:#F59E0B;
+
+    --color-danger:#DC2626;
+
+    /* Typography */
+
+    --text-primary:#F8FAFC;
+
+    --text-secondary:#94A3B8;
+
+    /* Shadows */
+
+    --shadow-sm:
+        0 4px 12px rgba(0,0,0,.18);
+
+    --shadow-lg:
+        0 10px 25px rgba(0,0,0,.25);
+
+}
+
+/* ===========================================================
+   BODY
+   =========================================================== */
+
+body{
+
+    font-family:'Inter',sans-serif;
+
+    background:var(--bg-main);
+
+    color:var(--text-primary);
+
+    margin:0;
+
+    padding:0;
+
+    min-height:100vh;
+
+    line-height:1.6;
+
+    overflow-x:hidden;
+
+    -webkit-font-smoothing:antialiased;
+
+}
+
+/* ===========================================================
+   TYPOGRAPHY
+   =========================================================== */
+
+h1,h2,h3,h4,h5,h6{
+
+    color:white;
+
+    font-weight:700;
+
+    letter-spacing:-.03em;
+
+}
+
+p{
+
+    color:var(--text-secondary);
+
+}
+
+.text-secondary-custom{
+
+    color:var(--text-secondary)!important;
+
+}
+
+/* ===========================================================
+   CARDS
+   =========================================================== */
+
+.soc-card{
+
+    background:var(--bg-card);
+
+    border:1px solid var(--border-color);
+
+    border-radius:6px;
+
+    padding:1.5rem;
+
+    box-shadow:var(--shadow-sm);
+
+    transition:border-color .2s ease,
+               box-shadow .2s ease;
+
+}
+
+.soc-card:hover{
+
+    border-color:var(--primary);
+
+    box-shadow:var(--shadow-lg);
+
+}
+
+/* ===========================================================
+   NAVBAR
+   =========================================================== */
+
+.navbar-soc{
+
+    background:#111827;
+
+    border-bottom:1px solid var(--border-color);
+
+    padding:.8rem 1.6rem;
+
+}
+
+.navbar-brand-soc{
+
+    font-size:1.3rem;
+
+    font-weight:800;
+
+    color:white!important;
+
+    letter-spacing:-.02em;
+
+}
+
+.navbar-brand-soc span{
+
+    color:var(--primary);
+
+}
+
+.nav-link-soc{
+
+    color:var(--text-secondary)!important;
+
+    font-size:.92rem;
+
+    font-weight:600;
+
+    border-radius:6px;
+
+    padding:.6rem 1rem!important;
+
+    transition:.2s;
+
+}
+
+.nav-link-soc:hover{
+
+    background:rgba(234,88,12,.12);
+
+    color:white!important;
+
+}
+
+.nav-link-soc.active{
+
+    background:rgba(234,88,12,.18);
+
+    color:white!important;
+
+}
+
+/* ===========================================================
+   INPUTS
+   =========================================================== */
+
+.form-soc{
+
+    background:#111827!important;
+
+    border:1px solid var(--border-color)!important;
+
+    color:white!important;
+
+    border-radius:6px!important;
+
+    padding:.75rem .9rem!important;
+
+    font-size:.92rem!important;
+
+    transition:.2s;
+
+}
+
+.form-soc::placeholder{
+
+    color:#64748B;
+
+}
+
+.form-soc:focus{
+
+    border-color:var(--primary)!important;
+
+    box-shadow:
+        0 0 0 3px rgba(234,88,12,.18)!important;
+
+    background:#111827!important;
+
+    outline:none!important;
+
+}
+
+/* ===========================================================
+   BUTTONS
+   =========================================================== */
+
+.btn-soc-primary{
+
+    background:var(--primary);
+
+    color:white;
+
+    border:none;
+
+    border-radius:6px;
+
+    padding:.7rem 1.4rem;
+
+    font-size:.9rem;
+
+    font-weight:600;
+
+    transition:.2s;
+
+}
+
+.btn-soc-primary:hover{
+
+    background:var(--primary-hover);
+
+    color:white;
+
+}
+
+.btn-soc-outline{
+
+    background:transparent;
+
+    color:white;
+
+    border:1px solid var(--border-color);
+
+    border-radius:6px;
+
+    padding:.7rem 1.4rem;
+
+    font-size:.9rem;
+
+    font-weight:600;
+
+    transition:.2s;
+
+}
+
+.btn-soc-outline:hover{
+
+    border-color:var(--primary);
+
+    background:rgba(234,88,12,.08);
+
+    color:white;
+
+}
+/* ===========================================================
+   TABLES
+   =========================================================== */
+
+.table-soc{
+
+    color:var(--text-primary)!important;
+
+    font-size:.88rem;
+
+    margin-bottom:0;
+
+}
+
+.table-soc th{
+
+    background:#172033!important;
+
+    color:var(--text-secondary)!important;
+
+    border-bottom:2px solid var(--border-color)!important;
+
+    text-transform:uppercase;
+
+    letter-spacing:.08em;
+
+    font-size:.72rem;
+
+    font-weight:700;
+
+    padding:.9rem 1rem!important;
+
+}
+
+.table-soc td{
+
+    border-bottom:1px solid rgba(255,255,255,.05)!important;
+
+    padding:.9rem 1rem!important;
+
+    background:transparent!important;
+
+    vertical-align:middle;
+
+}
+
+.table-soc tbody tr{
+
+    transition:.2s;
+
+}
+
+.table-soc tbody tr:hover{
+
+    background:rgba(234,88,12,.05);
+
+}
+
+/* ===========================================================
+   BADGES
+   =========================================================== */
+
+.badge-soc{
+
+    font-size:.72rem;
+
+    font-weight:700;
+
+    border-radius:5px;
+
+    padding:.35rem .65rem;
+
+    letter-spacing:.05em;
+
+    text-transform:uppercase;
+
+}
+
+.badge-soc-low{
+
+    background:rgba(34,197,94,.12);
+
+    color:var(--color-success);
+
+    border:1px solid rgba(34,197,94,.25);
+
+}
+
+.badge-soc-medium{
+
+    background:rgba(245,158,11,.12);
+
+    color:var(--color-warning);
+
+    border:1px solid rgba(245,158,11,.25);
+
+}
+
+.badge-soc-high{
+
+    background:rgba(220,38,38,.12);
+
+    color:var(--color-danger);
+
+    border:1px solid rgba(220,38,38,.25);
+
+}
+
+/* ===========================================================
+   METRIC CARDS
+   =========================================================== */
+
+.metric-value-soc{
+
+    font-size:2rem;
+
+    font-weight:800;
+
+    color:white;
+
+    margin:.4rem 0;
+
+    line-height:1;
+
+}
+
+.metric-label-soc{
+
+    font-size:.75rem;
+
+    text-transform:uppercase;
+
+    letter-spacing:.08em;
+
+    color:var(--text-secondary);
+
+    font-weight:600;
+
+}
+
+/* ===========================================================
+   ML PIPELINE
+   =========================================================== */
+
+.ml-pipeline-container{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:.6rem;
+
+    overflow-x:auto;
+
+    padding:1.4rem;
+
+    margin-bottom:1.5rem;
+
+    background:var(--bg-card);
+
+    border:1px solid var(--border-color);
+
+    border-radius:6px;
+
+}
+
+.pipeline-node{
+
+    min-width:120px;
+
+    background:#162133;
+
+    border:1px solid var(--border-color);
+
+    border-radius:6px;
+
+    padding:.9rem .7rem;
+
+    text-align:center;
+
+    transition:.2s;
+
+}
+
+.pipeline-node:hover{
+
+    border-color:var(--primary);
+
+}
+
+.pipeline-node strong{
+
+    display:block;
+
+    color:white;
+
+    font-size:.8rem;
+
+    margin-bottom:.3rem;
+
+}
+
+.pipeline-node span{
+
+    color:var(--text-secondary);
+
+    font-size:.7rem;
+
+}
+
+.pipeline-node.active-risk{
+
+    border-color:var(--primary);
+
+    background:rgba(234,88,12,.08);
+
+}
+
+.pipeline-connector{
+
+    color:var(--primary);
+
+    font-size:1rem;
+
+    font-weight:700;
+
+}
+
+/* ===========================================================
+   RECOMMENDATION LIST
+   =========================================================== */
+
+.recommendation-item{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:.8rem;
+
+    padding:.9rem 0;
+
+    border-bottom:1px solid rgba(255,255,255,.05);
+
+}
+
+.recommendation-item:last-child{
+
+    border-bottom:none;
+
+}
+
+.rec-status-icon{
+
+    color:var(--primary);
+
+    font-size:1rem;
+
+    margin-top:.1rem;
+
+}
+
+/* ===========================================================
+   TIMELINE
+   =========================================================== */
+
+.timeline-soc{
+
+    position:relative;
+
+    padding-left:1.8rem;
+
+}
+
+.timeline-soc::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:6px;
+
+    top:0;
+
+    bottom:0;
+
+    width:2px;
+
+    background:var(--border-color);
+
+}
+
+.timeline-item-soc{
+
+    position:relative;
+
+    margin-bottom:1.3rem;
+
+}
+
+.timeline-item-soc::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:-26px;
+
+    top:5px;
+
+    width:12px;
+
+    height:12px;
+
+    border-radius:50%;
+
+    background:#475569;
+
+    border:2px solid var(--bg-card);
+
+}
+
+.timeline-item-soc.status-success::before{
+
+    background:var(--color-success);
+
+}
+
+.timeline-item-soc.status-warning::before{
+
+    background:var(--color-warning);
+
+}
+
+.timeline-item-soc.status-danger::before{
+
+    background:var(--color-danger);
+
+}
+/* ===========================================================
+   UPLOAD ZONE
+   =========================================================== */
+
+.soc-upload-zone{
+
+    border:2px dashed var(--border-color);
+
+    border-radius:6px;
+
+    background:rgba(255,255,255,.02);
+
+    padding:2.5rem;
+
+    text-align:center;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.soc-upload-zone:hover{
+
+    border-color:var(--primary);
+
+    background:rgba(234,88,12,.05);
+
+}
+
+.soc-upload-zone i{
+
+    font-size:2.5rem;
+
+    color:var(--primary);
+
+    margin-bottom:1rem;
+
+}
+
+.soc-upload-zone h5{
+
+    color:white;
+
+    margin-bottom:.5rem;
+
+}
+
+.soc-upload-zone p{
+
+    color:var(--text-secondary);
+
+    margin:0;
+
+}
+
+/* ===========================================================
+   ALERTS
+   =========================================================== */
+
+.alert{
+
+    border-radius:6px;
+
+    border:none;
+
+    font-size:.9rem;
+
+}
+
+.alert-success{
+
+    background:rgba(34,197,94,.12);
+
+    color:#BBF7D0;
+
+    border-left:4px solid var(--color-success);
+
+}
+
+.alert-warning{
+
+    background:rgba(245,158,11,.12);
+
+    color:#FDE68A;
+
+    border-left:4px solid var(--color-warning);
+
+}
+
+.alert-danger{
+
+    background:rgba(220,38,38,.12);
+
+    color:#FECACA;
+
+    border-left:4px solid var(--color-danger);
+
+}
+
+.alert-info{
+
+    background:rgba(234,88,12,.12);
+
+    color:#FED7AA;
+
+    border-left:4px solid var(--primary);
+
+}
+
+/* ===========================================================
+   PROGRESS BAR
+   =========================================================== */
+
+.progress{
+
+    height:10px;
+
+    background:#1E293B;
+
+    border-radius:999px;
+
+    overflow:hidden;
+
+}
+
+.progress-bar{
+
+    background:linear-gradient(
+        90deg,
+        var(--primary),
+        var(--primary-light)
+    );
+
+}
+
+/* ===========================================================
+   FOOTER
+   =========================================================== */
+
+footer{
+
+    background:#111827;
+
+    border-top:1px solid var(--border-color)!important;
+
+}
+
+footer p{
+
+    margin-bottom:.35rem;
+
+    color:var(--text-secondary);
+
+}
+
+/* ===========================================================
+   LINKS
+   =========================================================== */
+
+a{
+
+    color:var(--primary);
+
+    text-decoration:none;
+
+}
+
+a:hover{
+
+    color:var(--primary-light);
+
+}
+
+/* ===========================================================
+   SCROLLBAR
+   =========================================================== */
+
+::-webkit-scrollbar{
+
+    width:8px;
+
+    height:8px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#111827;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#475569;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:var(--primary);
+
+}
+
+/* ===========================================================
+   BOOTSTRAP OVERRIDES
+   =========================================================== */
+
+.text-primary{
+
+    color:var(--primary)!important;
+
+}
+
+.bg-primary{
+
+    background-color:var(--primary)!important;
+
+}
+
+.border-primary{
+
+    border-color:var(--primary)!important;
+
+}
+
+.btn-primary{
+
+    background:var(--primary)!important;
+
+    border-color:var(--primary)!important;
+
+    color:#fff!important;
+
+}
+
+.btn-primary:hover{
+
+    background:var(--primary-hover)!important;
+
+    border-color:var(--primary-hover)!important;
+
+}
+
+.btn-outline-primary{
+
+    color:var(--primary)!important;
+
+    border-color:var(--primary)!important;
+
+}
+
+.btn-outline-primary:hover{
+
+    background:var(--primary)!important;
+
+    color:white!important;
+
+}
+
+.link-primary{
+
+    color:var(--primary)!important;
+
+}
+
+.link-primary:hover{
+
+    color:var(--primary-light)!important;
+
+}
+
+/* ===========================================================
+   RESPONSIVE
+   =========================================================== */
+
+@media (max-width:992px){
+
+    .navbar-brand-soc{
+
+        font-size:1.1rem;
+
+    }
+
+    .ml-pipeline-container{
+
+        justify-content:flex-start;
+
+    }
+
+    .pipeline-node{
+
+        min-width:140px;
+
+    }
+
+}
+
+@media (max-width:768px){
+
+    .soc-card{
+
+        padding:1rem;
+
+    }
+
+    .metric-value-soc{
+
+        font-size:1.5rem;
+
+    }
+
+    .table-soc{
+
+        font-size:.8rem;
+
+    }
+
+    .navbar-soc{
+
+        padding:.75rem;
+
+    }
+
+}

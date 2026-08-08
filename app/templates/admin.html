@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}CloudShield AI - Admin Console{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-light mb-1"><i class="bi bi-cpu-fill text-primary me-2"></i>Security Admin Console</h2>
+        <p class="text-secondary-custom small mb-0">System-wide firewall rule controls, telemetry metrics, and user access registries</p>
+    </div>
+</div>
+
+<!-- Grid of Metric Summary Panels -->
+<div class="row g-3 mb-4">
+    <!-- Total Accounts -->
+    <div class="col-md-3">
+        <div class="soc-card">
+            <span class="metric-label-soc"><i class="bi bi-people me-2"></i>Accounts Enrolled</span>
+            <div class="metric-value-soc">{{ metrics.total_users }}</div>
+            <div class="text-secondary-custom small mt-1">Suspended: <strong class="text-danger">{{ metrics.blocked_users }}</strong></div>
+        </div>
+    </div>
+    
+    <!-- Avg Threat Risk -->
+    <div class="col-md-3">
+        <div class="soc-card">
+            <span class="metric-label-soc"><i class="bi bi-shield-exclamation me-2"></i>Global Risk Average</span>
+            <div class="metric-value-soc">
+                {% set r = metrics.average_risk | round(2) %}
+                {{ r * 100 }}%
+            </div>
+            <div class="text-secondary-custom small mt-1">
+                {% if r < 0.20 %}
+                    <span class="text-success"><i class="bi bi-check-circle-fill"></i> Systems Secured</span>
+                {% else %}
+                    <span class="text-warning"><i class="bi bi-exclamation-triangle-fill"></i> Threat Level Warning</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Active Firewall Blocks -->
+    <div class="col-md-3">
+        <div class="soc-card">
+            <span class="metric-label-soc"><i class="bi bi-shield-slash me-2"></i>Firewall IP Blocks</span>
+            <div class="metric-value-soc text-danger">{{ metrics.blocked_ips_count }}</div>
+            <div class="text-secondary-custom small mt-1">Active blacklists at border gateway</div>
+        </div>
+    </div>
+
+    <!-- Live Bytes Uploaded -->
+    <div class="col-md-3">
+        <div class="soc-card">
+            <span class="metric-label-soc"><i class="bi bi-graph-up me-2"></i>Outbound Telemetry</span>
+            <div class="metric-value-soc text-info">{{ metrics.telemetry.bytes_processed | format_size }}</div>
+            <div class="text-secondary-custom small mt-1">Managed block size index</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: User Controls & Firewall Blocklist -->
+    <div class="col-lg-7">
+        <!-- User Accounts Manager -->
+        <div class="soc-card mb-4">
+            <h5 class="mb-3 text-light"><i class="bi bi-person-fill-gear text-primary me-2"></i>User Access Control List (ACL)</h5>
+            <div class="table-responsive">
+                <table class="table table-soc align-middle small mb-0">
+                    <thead>
+                        <tr>
+                            <th>Principal Details</th>
+                            <th>Assigned Role</th>
+                            <th>Status State</th>
+                            <th class="text-end">Suspension Control</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                <strong class="text-light">{{ user.username }}</strong>
+                                <span class="d-block text-secondary-custom" style="font-size: 0.75rem;">{{ user.email }}</span>
+                            </td>
+                            <td>
+                                <form action="{{ url_for('admin.change_role', user_id=user.id) }}" method="POST" class="d-inline">
+                                    <select name="role" class="form-select form-select-sm form-soc py-0 px-2 d-inline-block w-auto" onchange="this.form.submit()" {% if user.id == g.user.id %}disabled{% endif %}>
+                                        <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td>
+                                {% if user.is_blocked %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger rounded-0" style="font-size: 0.65rem;">SUSPENDED</span>
+                                {% else %}
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-0" style="font-size: 0.65rem;">ACTIVE</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if user.id != g.user.id %}
+                                    {% if user.is_blocked %}
+                                        <form action="{{ url_for('admin.unblock_user', user_id=user.id) }}" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-soc-outline py-1 px-3">Activate</button>
+                                        </form>
+                                    {% else %}
+                                        <form action="{{ url_for('admin.block_user', user_id=user.id) }}" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-3" style="border-radius: 4px;">Suspend</button>
+                                        </form>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-secondary-custom small italic">Primary Admin</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- IP Firewall Controller -->
+        <div class="soc-card">
+            <h5 class="mb-3 text-light"><i class="bi bi-shield-slash-fill text-danger me-2"></i>Edge Firewall blacklists</h5>
+            
+            <!-- Manual Add Block IP Form -->
+            <form action="{{ url_for('admin.block_ip') }}" method="POST" class="row g-2 align-items-center mb-4">
+                <div class="col-sm-5">
+                    <input type="text" name="ip_address" class="form-control form-soc form-control-sm" placeholder="Block IP Address" required>
+                </div>
+                <div class="col-sm-4">
+                    <input type="text" name="reason" class="form-control form-soc form-control-sm" placeholder="Audit Reason / Threat ID">
+                </div>
+                <div class="col-sm-3 d-grid">
+                    <button type="submit" class="btn btn-sm btn-soc-primary"><i class="bi bi-plus-lg me-1"></i>Block Gateway</button>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-soc align-middle small mb-0">
+                    <thead>
+                        <tr>
+                            <th>Gateway IP</th>
+                            <th>Blocked Reason</th>
+                            <th>Action Timestamp</th>
+                            <th class="text-end">Firewall Rule</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if blocked_ips %}
+                            {% for ip in blocked_ips %}
+                            <tr>
+                                <td><code class="text-danger bg-black px-2 py-0.5 rounded border border-danger">{{ ip.ip_address }}</code></td>
+                                <td class="text-secondary-custom">{{ ip.reason or 'Threat indicator logged' }}</td>
+                                <td class="text-secondary-custom small">{{ ip.blocked_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td class="text-end">
+                                    <form action="{{ url_for('admin.unblock_ip', ip_id=ip.id) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-soc-outline py-0 px-2 border-success text-success" title="Remove IP from block list">
+                                            Allow
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-secondary-custom">No firewall IP blacklist rules deployed.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: System Telemetry Stats & Global Audits -->
+    <div class="col-lg-5">
+        <!-- Telemetry Panel -->
+        <div class="soc-card mb-4">
+            <h5 class="mb-3 text-light"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Global Telemetry Aggregator</h5>
+            
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <div class="bg-black bg-opacity-20 border border-secondary p-3 text-center rounded-1" style="border-color: var(--border-color) !important;">
+                        <span class="text-secondary-custom small d-block">Telemetry Calls</span>
+                        <strong class="text-light" style="font-size: 1.25rem;">{{ metrics.telemetry.total_api_calls }}</strong>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="bg-black bg-opacity-20 border border-secondary p-3 text-center rounded-1" style="border-color: var(--border-color) !important;">
+                        <span class="text-secondary-custom small d-block">Authentication (S/F)</span>
+                        <strong class="text-success" style="font-size: 1.15rem;">{{ metrics.telemetry.login_success_count }}</strong>
+                        <span class="text-secondary-custom">/</span>
+                        <strong class="text-danger" style="font-size: 1.15rem;">{{ metrics.telemetry.login_failed_count }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Telemetry Items -->
+            <ul class="list-group list-group-flush bg-transparent">
+                <li class="list-group-item bg-transparent text-light border-secondary d-flex justify-content-between align-items-center px-0 py-2" style="border-color: var(--border-color) !important;">
+                    <span class="text-secondary-custom small"><i class="bi bi-cloud-arrow-up text-primary me-2"></i>Protected Block Uploads</span>
+                    <span class="badge bg-secondary rounded-1 px-2 py-1" style="font-size: 0.75rem;">{{ metrics.telemetry.files_uploaded }}</span>
+                </li>
+                <li class="list-group-item bg-transparent text-light border-secondary d-flex justify-content-between align-items-center px-0 py-2" style="border-color: var(--border-color) !important;">
+                    <span class="text-secondary-custom small"><i class="bi bi-cloud-arrow-down text-success me-2"></i>Protected Block Downloads</span>
+                    <span class="badge bg-secondary rounded-1 px-2 py-1" style="font-size: 0.75rem;">{{ metrics.telemetry.files_downloaded }}</span>
+                </li>
+                <li class="list-group-item bg-transparent text-light border-none d-flex justify-content-between align-items-center px-0 py-2">
+                    <span class="text-secondary-custom small"><i class="bi bi-trash text-danger me-2"></i>Wiped Storage Blocks</span>
+                    <span class="badge bg-secondary rounded-1 px-2 py-1" style="font-size: 0.75rem;">{{ metrics.telemetry.files_deleted }}</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Global Security Auditing feed -->
+        <div class="soc-card">
+            <h5 class="mb-3 text-light"><i class="bi bi-journals text-primary me-2"></i>Global Threat Intelligence Feed</h5>
+            <p class="text-secondary-custom small">Audit feed of authentication and behavior anomalies</p>
+            <hr class="border-secondary mb-3" style="border-color: var(--border-color) !important;">
+            
+            <div class="overflow-y-auto" style="max-height: 400px; scrollbar-width: thin;">
+                {% if logs %}
+                    {% for log in logs %}
+                    <div class="border-bottom border-secondary border-opacity-30 py-2 small" style="border-color: var(--border-color) !important;">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-warning font-monospace" style="font-size: 0.75rem;">{{ log.timestamp.strftime('%H:%M:%S (%m-%d)') }}</span>
+                            {% set risk_pct = (log.risk_score * 100) | round(1) %}
+                            {% if risk_pct < 20 %}
+                                <span class="badge-soc badge-soc-low" style="font-size: 0.65rem;">R: {{ risk_pct }}%</span>
+                            {% elif risk_pct < 70 %}
+                                <span class="badge-soc badge-soc-medium" style="font-size: 0.65rem;">R: {{ risk_pct }}%</span>
+                            {% else %}
+                                <span class="badge-soc badge-soc-high" style="font-size: 0.65rem;">R: {{ risk_pct }}%</span>
+                            {% endif %}
+                        </div>
+                        <div class="text-light">
+                            <strong>{{ log.user.username if log.user else 'ANONYMOUS PRINCIPAL' }}</strong>: 
+                            <span class="text-primary" style="font-size: 0.75rem;">{{ log.action.upper() }}</span>
+                        </div>
+                        <div class="text-secondary-custom" style="font-size: 0.75rem; line-height: 1.3;">
+                            {{ log.details }} (IP: {{ log.ip_address }} | {{ log.city or 'Unknown Location' }})
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center text-secondary-custom py-4 small">No security events recorded in intelligence feed.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}CloudShield AI - Security Logs{% endblock %}
+
+{% block content %}
+<div class="soc-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-activity text-primary me-2"></i>Security Logs</h2>
+            <p class="text-secondary-custom small mb-0">Compliance audit log of session actions, geolocations, browser fingerprints, and risk classifications</p>
+        </div>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-soc-outline">
+            <i class="bi bi-arrow-left me-1"></i>Back to SOC Dashboard
+        </a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-soc align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Action Event</th>
+                    <th>IP Address</th>
+                    <th>Geolocation</th>
+                    <th>Device/Browser</th>
+                    <th>Classification</th>
+                    <th>Risk Score</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if logs %}
+                    {% for log in logs %}
+                    <tr>
+                        <td class="text-nowrap small text-secondary-custom">
+                            {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                        </td>
+                        <td>
+                            {% if log.action in ['login_success', 'register', 'verification_passed'] %}
+                                <span class="badge bg-success-subtle text-success border border-success px-2 py-1 rounded-1" style="font-size: 0.7rem;">
+                                    <i class="bi bi-check-circle me-1"></i>{{ log.action.replace('_', ' ').title() }}
+                                </span>
+                            {% elif log.action in ['login_failed', 'login_anomaly', 'ip_blocked'] %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger px-2 py-1 rounded-1" style="font-size: 0.7rem;">
+                                    <i class="bi bi-shield-x me-1"></i>{{ log.action.replace('_', ' ').title() }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary-subtle text-light border border-secondary px-2 py-1 rounded-1" style="font-size: 0.7rem;">
+                                    {{ log.action.replace('_', ' ').title() }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <code class="text-warning bg-black px-2 py-1 rounded" style="font-size: 0.8rem; border: 1px solid var(--border-color);">{{ log.ip_address }}</code>
+                        </td>
+                        <td class="small">
+                            {% if log.city and log.city != 'Unknown' %}
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ log.city }}, {{ log.country }}
+                            {% else %}
+                                <span class="text-secondary-custom">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-truncate text-secondary-custom small" style="max-width: 180px;" title="{{ log.user_agent or 'None' }}">
+                            {% if log.operating_system %}
+                                {{ log.operating_system }} ({{ log.browser or 'Unknown' }})
+                            {% else %}
+                                {{ log.user_agent or 'Unknown Device' }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if log.prediction %}
+                                {% if log.prediction == 'Legitimate User' %}
+                                    <span class="text-success small fw-medium"><i class="bi bi-person-check me-1"></i>{{ log.prediction }}</span>
+                                {% else %}
+                                    <span class="text-danger small fw-medium"><i class="bi bi-exclamation-triangle me-1"></i>{{ log.prediction }}</span>
+                                {% endif %}
+                                <span class="text-secondary-custom small">({{ log.confidence }}%)</span>
+                            {% else %}
+                                <span class="text-secondary-custom">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set risk_pct = (log.risk_score * 100) | round(1) %}
+                            {% if risk_pct < 20 %}
+                                <span class="badge-soc badge-soc-low">{{ risk_pct }}%</span>
+                            {% elif risk_pct < 70 %}
+                                <span class="badge-soc badge-soc-medium">{{ risk_pct }}%</span>
+                            {% else %}
+                                <span class="badge-soc badge-soc-high">{{ risk_pct }}%</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-secondary-custom" style="max-width: 250px;">
+                            {{ log.details or '-' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center py-5 text-secondary-custom">
+                        <i class="bi bi-journal-x d-block mb-2" style="font-size: 2.5rem;"></i>
+                        No security activity logs available.
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

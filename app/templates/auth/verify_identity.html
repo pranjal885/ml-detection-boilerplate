@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}CloudShield AI - Identity Verification Required{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh; padding: 2rem 0;">
+    <div class="soc-card" style="max-width: 500px; width: 100%; border-color: var(--color-danger); border-width: 2px;">
+        <div class="text-center mb-4">
+            <i class="bi bi-shield-fill-exclamation text-danger" style="font-size: 3rem;"></i>
+            <h3 class="mt-2 text-danger">MFA Verification Required</h3>
+            <p class="text-secondary-custom small">Threat Assessment Engine flagged this connection attempt.</p>
+        </div>
+        
+        <!-- Threat Metrics Panel -->
+        <div class="p-3 mb-4 rounded-1 border border-secondary bg-dark bg-opacity-20" style="border-color: var(--border-color) !important;">
+            <h6 class="text-warning mb-3"><i class="bi bi-cpu me-2"></i>Threat Diagnostic Metrics</h6>
+            <div class="row g-2 small">
+                <div class="col-6">
+                    <span class="text-secondary-custom d-block">Source IP Address</span>
+                    <strong class="text-light">{{ threat.ip_address }}</strong>
+                </div>
+                <div class="col-6">
+                    <span class="text-secondary-custom d-block">Detected Location</span>
+                    <strong class="text-light"><i class="bi bi-geo-alt text-danger me-1"></i>{{ threat.city }}, {{ threat.country }}</strong>
+                </div>
+                <div class="col-6 mt-2">
+                    <span class="text-secondary-custom d-block">Operating System</span>
+                    <strong class="text-light">{{ threat.operating_system }}</strong>
+                </div>
+                <div class="col-6 mt-2">
+                    <span class="text-secondary-custom d-block">Browser Signature</span>
+                    <strong class="text-light">{{ threat.browser }}</strong>
+                </div>
+                <div class="col-6 mt-2">
+                    <span class="text-secondary-custom d-block">Risk Classification</span>
+                    <span class="badge-soc badge-soc-high mt-1 d-inline-block">{{ threat.risk_score }}% Risk</span>
+                </div>
+                <div class="col-6 mt-2">
+                    <span class="text-secondary-custom d-block">Classifier Confidence</span>
+                    <strong class="text-light">{{ threat.confidence }}% Confidence</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-warning border border-warning bg-warning bg-opacity-10 text-light p-3 small mb-4">
+            <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+            Anomalous behavior (unrecognized location/browser sequence or repeated authentication errors) has triggered security gates. Complete MFA verification to clear this flag.
+        </div>
+
+        <!-- Verification Form -->
+        <form action="{{ url_for('auth.verify_identity') }}" method="POST">
+            <div class="mb-4">
+                <label for="verification_code" class="form-label text-secondary-custom small mb-1">Enter Security Authorization Code (MFA)</label>
+                <input type="text" class="form-control form-soc text-center font-monospace" id="verification_code" name="verification_code" placeholder="000000" required maxlength="7" style="font-size: 1.5rem !important; letter-spacing: 0.25em;">
+                <div class="form-text text-secondary-custom small mt-2 text-center">
+                    <i class="bi bi-info-circle me-1"></i>For this demo iteration, enter authentication code: <code class="text-warning">123456</code>.
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-soc-primary py-2">
+                    <i class="bi bi-shield-check me-2"></i>Verify Identity
+                </button>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-soc-outline py-2">
+                    Cancel & Terminate Session
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
