@@ -117,6 +117,36 @@ def register():
             
     return render_template('auth/register.html')
 
+
+def get_failed_login_count(ip):
+    """
+    Calculate the number of failed login attempts for a given IP address.
+    Counts only login_failed ActivityLog records within the last 24 hours
+    that occurred AFTER the most recent successful authentication event
+    (either login_success or verification_passed).
+    """
+    time_window = datetime.utcnow() - timedelta(hours=24)
+    
+    # Find the most recent successful authentication event (login_success or verification_passed) for the IP
+    latest_success = ActivityLog.query.filter(
+        ActivityLog.action.in_(['login_success', 'verification_passed']),
+        ActivityLog.ip_address == ip,
+        ActivityLog.timestamp >= time_window
+    ).order_by(ActivityLog.timestamp.desc()).first()
+    
+    # Query failed logins
+    failed_query = ActivityLog.query.filter(
+        ActivityLog.action == 'login_failed',
+        ActivityLog.ip_address == ip,
+        ActivityLog.timestamp >= time_window
+    )
+    
+    if latest_success:
+        failed_query = failed_query.filter(ActivityLog.timestamp > latest_success.timestamp)
+        
+    return failed_query.count()
+
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if g.user:
@@ -150,12 +180,7 @@ def login():
             # Engineered features to feed the ML Prediction Engine.
             # Keep compatibility with the legacy feature names while supplying the model's
             # exact numeric inputs expected by the trained estimator.
-            time_window = datetime.utcnow() - timedelta(hours=24)
-            failed_login_count = ActivityLog.query.filter(
-                ActivityLog.action == 'login_failed',
-                ActivityLog.ip_address == ip,
-                ActivityLog.timestamp >= time_window
-            ).count()
+            failed_login_count = get_failed_login_count(ip)
             location_anomaly = anomalies['new_location']
             device_anomaly = anomalies['new_browser'] or anomalies['new_platform']
 
@@ -241,12 +266,7 @@ def login():
             
             # Treat incorrect passwords as suspicious attacker activity automatically.
             # Keep the same route logic and session behavior while using the real ML signal.
-            time_window = datetime.utcnow() - timedelta(hours=24)
-            failed_login_count = ActivityLog.query.filter(
-                ActivityLog.action == 'login_failed',
-                ActivityLog.ip_address == ip,
-                ActivityLog.timestamp >= time_window
-            ).count()
+            failed_login_count = get_failed_login_count(ip)
             model_features = {
                 'time_of_day': datetime.now().hour,
                 'failed_login_count': failed_login_count + 1,

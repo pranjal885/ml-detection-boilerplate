@@ -244,5 +244,191 @@ class TestLoginPipeline(unittest.TestCase):
             ActivityLog.query.filter_by(ip_address=target_ip).delete()
             db.session.commit()
 
+    def test_failed_attempts_accumulate_before_success(self):
+        """TEST 1 — Failed attempts accumulate before success"""
+        from app.routes.auth import get_failed_login_count
+        test_ip = "103.132.148.99"
+        
+        # Ensure clean state
+        ActivityLog.query.filter_by(ip_address=test_ip).delete()
+        db.session.commit()
+        
+        # Start at 0
+        self.assertEqual(get_failed_login_count(test_ip), 0)
+        
+        # Add failed login logs
+        for i in range(3):
+            db.session.add(ActivityLog(
+                ip_address=test_ip,
+                action='login_failed',
+                timestamp=datetime.utcnow() - timedelta(minutes=10 - i)
+            ))
+            db.session.commit()
+            self.assertEqual(get_failed_login_count(test_ip), i + 1)
+
+    def test_successful_authentication_resets_counter(self):
+        """TEST 2 — Successful authentication resets the effective counter"""
+        from app.routes.auth import get_failed_login_count
+        test_ip = "103.132.148.99"
+        
+        # Ensure clean state
+        ActivityLog.query.filter_by(ip_address=test_ip).delete()
+        db.session.commit()
+        
+        # Create 3 failed logs
+        for i in range(3):
+            db.session.add(ActivityLog(
+                ip_address=test_ip,
+                action='login_failed',
+                timestamp=datetime.utcnow() - timedelta(minutes=15 - i)
+            ))
+        db.session.commit()
+        
+        # Create a successful authentication event (login_success)
+        db.session.add(ActivityLog(
+            ip_address=test_ip,
+            action='login_success',
+            timestamp=datetime.utcnow() - timedelta(minutes=5)
+        ))
+        db.session.commit()
+        
+        # Create subsequent failed login
+        db.session.add(ActivityLog(
+            ip_address=test_ip,
+            action='login_failed',
+            timestamp=datetime.utcnow()
+        ))
+        db.session.commit()
+        
+        # The counter must ignore the 3 failures before successful authentication and only count 1
+        self.assertEqual(get_failed_login_count(test_ip), 1)
+
+    def test_mfa_success_resets_counter(self):
+        """TEST 3 — MFA success resets the effective counter"""
+        from app.routes.auth import get_failed_login_count
+        test_ip = "103.132.148.99"
+        
+        # Ensure clean state
+        ActivityLog.query.filter_by(ip_address=test_ip).delete()
+        db.session.commit()
+        
+        # Create prior failures
+        for i in range(2):
+            db.session.add(ActivityLog(
+                ip_address=test_ip,
+                action='login_failed',
+                timestamp=datetime.utcnow() - timedelta(minutes=20 - i)
+            ))
+        db.session.commit()
+        
+        # Create the successful MFA verification event (verification_passed)
+        db.session.add(ActivityLog(
+            ip_address=test_ip,
+            action='verification_passed',
+            timestamp=datetime.utcnow() - timedelta(minutes=10)
+        ))
+        db.session.commit()
+        
+        # Create a subsequent failure
+        db.session.add(ActivityLog(
+            ip_address=test_ip,
+            action='login_failed',
+            timestamp=datetime.utcnow()
+        ))
+        db.session.commit()
+        
+        # Only the failure after the verification should be counted
+        self.assertEqual(get_failed_login_count(test_ip), 1)
+
+    def test_historical_audit_logs_remain_intact(self):
+        """TEST 4 — Historical audit logs remain intact"""
+        test_ip = "103.132.148.99"
+        
+        # Ensure clean state
+        ActivityLog.query.filter_by(ip_address=test_ip).delete()
+        db.session.commit()
+        
+        # Create failures
+        db.session.add(ActivityLog(ip_address=test_ip, action='login_failed'))
+        db.session.commit()
+        
+        # Create verification success
+        db.session.add(ActivityLog(ip_address=test_ip, action='verification_passed'))
+        db.session.commit()
+        
+        # Verify the original login_failed still exists in database (count remains 1)
+        all_failed_count = ActivityLog.query.filter_by(ip_address=test_ip, action='login_failed').count()
+        self.assertEqual(all_failed_count, 1)
+
+    def test_twenty_four_hour_boundary_enforced(self):
+        """TEST 5 — 24-hour boundary remains enforced"""
+        from app.routes.auth import get_failed_login_count
+        test_ip = "103.132.148.99"
+        
+        # Ensure clean state
+        ActivityLog.query.filter_by(ip_address=test_ip).delete()
+        db.session.commit()
+        
+        # Create failed login older than 24 hours (e.g. 25h)
+        db.session.add(ActivityLog(
+            ip_address=test_ip,
+            action='login_failed',
+            timestamp=datetime.utcnow() - timedelta(hours=25)
+        ))
+        
+        # Create successful login
+        db.session.add(ActivityLog(
+            ip_address=test_ip,
+            action='login_success',
+            timestamp=datetime.utcnow() - timedelta(hours=2)
+        ))
+        
+        # Create failed login within 24 hours and after the successful login
+        db.session.add(ActivityLog(
+            ip_address=test_ip,
+            action='login_failed',
+            timestamp=datetime.utcnow() - timedelta(hours=1)
+        ))
+        db.session.commit()
+        
+        # Only the current failure (1h ago) should be counted; the 25h failure is out of window
+        self.assertEqual(get_failed_login_count(test_ip), 1)
+
+    def test_brute_force_protection_still_works(self):
+        """TEST 6 — Existing brute-force protection still works"""
+        from app.routes.auth import get_failed_login_count
+        test_ip = "103.132.148.99"
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+            'X-Forwarded-For': test_ip
+        }
+        
+        # Clean up database tables for this test IP
+        BlockedIP.query.filter_by(ip_address=test_ip).delete()
+        ActivityLog.query.filter_by(ip_address=test_ip).delete()
+        db.session.commit()
+        
+        # Perform repeated failed logins (incorrect credentials)
+        # Attempt 1: DB count = 0 -> model gets 1 -> risk = 71%. No block. Logs committed = 2.
+        # Attempt 2: DB count = 2 -> model gets 3 -> risk = 76%. No block. Logs committed = 4.
+        # Attempt 3: DB count = 4 -> model gets 5 -> risk = 92%. Blocks!
+        for i in range(3):
+            response = self.client.post('/login', data={
+                'email': self.email,
+                'password': 'wrongpassword'
+            }, headers=headers, follow_redirects=True)
+            
+            blocked = BlockedIP.query.filter_by(ip_address=test_ip).first()
+            if i < 2:
+                self.assertIsNone(blocked, f"IP blocked prematurely at attempt {i + 1}")
+            else:
+                self.assertIsNotNone(blocked, "IP was not blocked after 3 consecutive failures")
+                
+        # Clean up
+        BlockedIP.query.filter_by(ip_address=test_ip).delete()
+        ActivityLog.query.filter_by(ip_address=test_ip).delete()
+        db.session.commit()
+
 if __name__ == '__main__':
     unittest.main()
