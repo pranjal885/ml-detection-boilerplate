@@ -37,3 +37,11 @@ class Config:
     UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', os.path.join(ROOT_DIR, 'uploads'))
     # Max file size limit: 50 Megabytes
     MAX_CONTENT_LENGTH = 50 * 1024 * 1024
+
+    # ML Inference Settings
+    DETECTION_NAME = os.environ.get('DETECTION_NAME', 'Generic ML Detection')
+    MODEL_TYPE = os.environ.get('MODEL_TYPE', 'tabular')  # 'image', 'text', 'tabular', 'object_detection'
+    MODEL_PATH = os.environ.get('MODEL_PATH', os.path.join(ROOT_DIR, 'models', 'model.pkl'))
+    MODEL_VERSION = os.environ.get('MODEL_VERSION', '1.0.0')
+    MODEL_ADAPTER = os.environ.get('MODEL_ADAPTER', 'TabularClassificationAdapter')
+    INPUT_TYPE = os.environ.get('INPUT_TYPE', 'tabular')  # 'image', 'text', 'tabular'

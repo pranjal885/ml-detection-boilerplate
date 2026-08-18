@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}{{ detection_name }} - Run Detection{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-lg-8">
+        <!-- Input Form Card -->
+        <div class="soc-card text-light p-4 mb-4 shadow">
+            <div class="d-flex align-items-center mb-4 border-bottom border-secondary pb-3">
+                <div class="bg-primary bg-opacity-25 text-primary rounded p-2 me-3" style="font-size: 1.5rem;">
+                    <i class="bi {% if input_type == 'image' or input_type == 'object_detection' %}bi-image-fill{% elif input_type == 'text' %}bi-chat-left-text-fill{% else %}bi-table{% endif %}"></i>
+                </div>
+                <div>
+                    <h4 class="mb-0 text-light">{{ detection_name }}</h4>
+                    <p class="text-secondary-custom mb-0 small">Input type required: <span class="badge bg-secondary text-capitalize">{{ input_type }}</span></p>
+                </div>
+            </div>
+
+            <form action="{{ url_for('prediction.predict') }}" method="POST" enctype="multipart/form-data">
+                {% if input_type == 'image' or input_type == 'object_detection' %}
+                    <!-- Image Input Zone -->
+                    <div class="mb-4">
+                        <label class="form-label text-secondary-custom small">Select Input Image</label>
+                        <div class="border border-dashed border-secondary rounded p-5 text-center bg-dark bg-opacity-50 drag-zone" style="cursor: pointer;">
+                            <input type="file" name="file" id="file" class="d-none" accept="image/*" required onchange="previewImage(this)">
+                            <div id="dropzone-text">
+                                <i class="bi bi-cloud-arrow-up-fill text-primary" style="font-size: 3rem;"></i>
+                                <h6 class="mt-3 text-light">Drag and drop your image here or click to browse</h6>
+                                <p class="text-secondary-custom small mb-0">Supports PNG, JPG, JPEG, WEBP</p>
+                            </div>
+                            <div id="image-preview-container" class="d-none mt-2">
+                                <img id="image-preview" src="#" alt="Preview" class="img-fluid rounded border border-secondary shadow-sm" style="max-height: 250px;">
+                                <p class="text-primary mt-2 small mb-0 filename-text"></p>
+                                <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="resetImage()">Select Another Image</button>
+                            </div>
+                        </div>
+                    </div>
+
+                {% elif input_type == 'text' %}
+                    <!-- Text Area Input -->
+                    <div class="mb-4">
+                        <label for="text" class="form-label text-secondary-custom small">Input Text Content</label>
+                        <textarea class="form-control bg-dark border-secondary text-light rounded-1 focus-ring" name="text" id="text" rows="8" placeholder="Type or paste the content to analyze..." required style="resize: vertical;"></textarea>
+                    </div>
+
+                {% elif input_type == 'tabular' %}
+                    <!-- Tabular Input Form Grid -->
+                    <div class="mb-4">
+                        <label class="form-label text-secondary-custom small mb-3">Model Feature Specifications</label>
+                        <div class="row g-3">
+                            {% for f in features %}
+                                <div class="col-md-6">
+                                    <label for="{{ f.name }}" class="form-label text-light small mb-1">{{ f.name | replace('_', ' ') | title }}</label>
+                                    <input
+                                        type="{% if f.type == 'number' %}number{% else %}text{% endif %}"
+                                        {% if f.type == 'number' %}step="any"{% endif %}
+                                        class="form-control bg-dark border-secondary text-light rounded-1"
+                                        id="{{ f.name }}"
+                                        name="{{ f.name }}"
+                                        value="{{ f.default if f.default is not none else '' }}"
+                                        required
+                                    >
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-soc-primary py-2" id="submit-btn">
+                        <i class="bi bi-play-circle-fill me-1"></i>Run Inference Pipeline
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Handles custom drag and drop UI interaction
+    document.querySelector('.drag-zone')?.addEventListener('click', () => {
+        document.getElementById('file').click();
+    });
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('image-preview').src = e.target.result;
+                document.getElementById('dropzone-text').classList.add('d-none');
+                document.getElementById('image-preview-container').classList.remove('d-none');
+                document.querySelector('.filename-text').textContent = input.files[0].name;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function resetImage() {
+        document.getElementById('file').value = "";
+        document.getElementById('dropzone-text').classList.remove('d-none');
+        document.getElementById('image-preview-container').classList.add('d-none');
+    }
+</script>
+{% endblock %}
