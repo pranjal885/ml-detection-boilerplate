@@ -14,35 +14,35 @@
 
     /* Background */
 
-    --bg-main: #F5F1E8;
+    --bg-main: #E8E1D3;
 
     --bg-sidebar: #20211D;
 
-    --bg-card: #FFFDF8;
+    --bg-card: #F7F2E8;
 
-    --border-color: #D8D2C5;
+    --border-color: #C8BEAC;
 
     /* Enterprise Orange */
 
-    --primary: #7A7F45;
+    --primary: #686D32;
 
-    --primary-hover: #62683A;
+    --primary-hover: #555A29;
 
-    --primary-light: #A6A96A;
+    --primary-light: #8D934F;
 
     /* Status Colors */
 
-    --color-success: #5F8F5A;
+    --color-success: #4E7B4B;
 
-    --color-warning: #C79A2B;
+    --color-warning: #A97818;
 
-    --color-danger: #B85C5C;
+    --color-danger: #9B4545;
 
     /* Typography */
 
-    --text-primary: #252620;
+    --text-primary: #24251F;
 
-    --text-secondary: #6F7068;
+    --text-secondary: #55564F;
 
     /* Shadows */
 
@@ -210,7 +210,7 @@ p {
 
 .form-soc {
 
-    background: #F8F5EE !important;
+    background: #EFE8DB !important;
 
     border: 1px solid var(--border-color) !important;
 
@@ -239,7 +239,7 @@ p {
     box-shadow:
         0 0 0 3px rgba(122, 127, 69, .18) !important;
 
-    background: #F8F5EE !important;
+    background: #EFE8DB !important;
 
     outline: none !important;
 
@@ -323,7 +323,7 @@ p {
 
 .table-soc th {
 
-    background: #ECE8DE !important;
+    background: #D8D0C0 !important;
 
     color: var(--text-secondary) !important;
 
@@ -479,7 +479,7 @@ p {
 
     min-width: 120px;
 
-    background: #F1EEE6;
+    background: #DDD5C5;
 
     border: 1px solid var(--border-color);
 
@@ -625,7 +625,7 @@ p {
 
     border-radius: 50%;
 
-    background: #77786F;
+    background: #5D5E56;
 
     border: 2px solid var(--bg-card);
 
@@ -767,7 +767,7 @@ p {
 
     height: 10px;
 
-    background: #FFFDF8;
+    background: #F7F2E8;
 
     border-radius: 999px;
 
@@ -841,7 +841,7 @@ a:hover {
 
 ::-webkit-scrollbar-thumb {
 
-    background: #77786F;
+    background: #5D5E56;
 
     border-radius: 20px;
 
@@ -881,7 +881,7 @@ a:hover {
 
     border-color: var(--primary) !important;
 
-    color: #FFFDF8 !important;
+    color: #F7F2E8 !important;
 
 }
 
@@ -1007,15 +1007,134 @@ footer {
 }
 
 .form-soc {
-    background: #F8F5EE !important;
+    background: #EFE8DB !important;
     color: var(--text-primary) !important;
 }
 
 .form-soc:focus {
-    background: #FFFDF8 !important;
+    background: #F7F2E8 !important;
 }
 
 ::selection {
     background: rgba(122, 127, 69, .22);
     color: var(--text-primary);
+}
+
+
+/* ===========================================================
+   CONTRAST PASS — WARM PALETTE
+   =========================================================== */
+
+body {
+    color: #24251F;
+}
+
+.text-muted,
+.text-secondary,
+small,
+.form-text {
+    color: #55564F !important;
+}
+
+a {
+    color: #555A29;
+}
+
+a:hover {
+    color: #41451F;
+}
+
+.form-control,
+.form-select,
+input,
+textarea,
+select {
+    color: #24251F !important;
+    background-color: #F7F2E8 !important;
+    border-color: #BDB3A2 !important;
+}
+
+.form-control::placeholder,
+input::placeholder,
+textarea::placeholder {
+    color: #77756C !important;
+    opacity: 1;
+}
+
+.form-control:focus,
+.form-select:focus,
+input:focus,
+textarea:focus,
+select:focus {
+    color: #24251F !important;
+    background-color: #FFF9EF !important;
+    border-color: #686D32 !important;
+    box-shadow: 0 0 0 .15rem rgba(104, 109, 50, .18) !important;
+}
+
+table,
+.table {
+    color: #24251F;
+}
+
+.table th {
+    color: #34352F !important;
+    background-color: #DDD5C5 !important;
+}
+
+.table td {
+    color: #3F4039 !important;
+}
+
+.card-title,
+.card-text,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #24251F;
+}
+
+/* Keep the dark navigation areas intentionally dark for strong contrast. */
+.navbar-soc,
+.navbar-soc .navbar-brand-soc,
+.navbar-soc .nav-link-soc,
+footer {
+    color: #F7F2E8 !important;
+}
+
+.navbar-soc .nav-link-soc i,
+.navbar-soc .navbar-brand-soc i {
+    color: #8D934F !important;
+}
+
+/* Buttons use darker text where the background is light. */
+.btn-outline-secondary {
+    color: #4B4C45 !important;
+    border-color: #8E887B !important;
+}
+
+.btn-outline-secondary:hover {
+    color: #24251F !important;
+    background: #DDD5C5 !important;
+}
+
+.badge {
+    font-weight: 600;
+}
+
+/* Make code/data blocks readable without bringing blue back. */
+pre,
+code,
+pre code {
+    color: #3E4038;
+    background: #DDD5C5;
+}
+
+/* Selection remains warm olive, never blue. */
+::selection {
+    background: rgba(104, 109, 50, .25);
+    color: #24251F;
 }
