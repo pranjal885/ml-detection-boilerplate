@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}CloudShield AI - Register Keys{% endblock %}
+{% block title %}Generic ML detection - Register Keys{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="min-height: 75vh;">
@@ -10,44 +10,63 @@
             <h3 class="mt-2 mb-1">Create Security Key</h3>
             <p class="text-secondary-custom small">Configure authentication access credentials</p>
         </div>
-        
+
         <form action="{{ url_for('auth.register') }}" method="POST">
             <!-- Username Input -->
             <div class="mb-3">
-                <label for="username" class="form-label text-secondary-custom small mb-1">Principal Name (Username)</label>
+                <label for="username" class="form-label text-secondary-custom small mb-1">Principal Name
+                    (Username)</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-transparent border-secondary text-secondary" style="border-color: var(--border-color) !important; border-radius: 4px 0 0 4px;"><i class="bi bi-person"></i></span>
-                    <input type="text" class="form-control form-soc" id="username" name="username" placeholder="johndoe" required autocomplete="username" style="border-radius: 0 4px 4px 0 !important;">
+                    <span class="input-group-text bg-transparent border-secondary text-secondary"
+                        style="border-color: var(--border-color) !important; border-radius: 4px 0 0 4px;"><i
+                            class="bi bi-person"></i></span>
+                    <input type="text" class="form-control form-soc" id="username" name="username" placeholder="johndoe"
+                        required autocomplete="username" style="border-radius: 0 4px 4px 0 !important;">
                 </div>
             </div>
 
             <!-- Email Input -->
             <div class="mb-3">
-                <label for="email" class="form-label text-secondary-custom small mb-1">Security Identifier (Email)</label>
+                <label for="email" class="form-label text-secondary-custom small mb-1">Security Identifier
+                    (Email)</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-transparent border-secondary text-secondary" style="border-color: var(--border-color) !important; border-radius: 4px 0 0 4px;"><i class="bi bi-envelope"></i></span>
-                    <input type="email" class="form-control form-soc" id="email" name="email" placeholder="john@company.com" required autocomplete="email" style="border-radius: 0 4px 4px 0 !important;">
+                    <span class="input-group-text bg-transparent border-secondary text-secondary"
+                        style="border-color: var(--border-color) !important; border-radius: 4px 0 0 4px;"><i
+                            class="bi bi-envelope"></i></span>
+                    <input type="email" class="form-control form-soc" id="email" name="email"
+                        placeholder="john@company.com" required autocomplete="email"
+                        style="border-radius: 0 4px 4px 0 !important;">
                 </div>
             </div>
-            
+
             <!-- Password Input -->
             <div class="mb-3">
-                <label for="password" class="form-label text-secondary-custom small mb-1">Authorization Code (Password)</label>
+                <label for="password" class="form-label text-secondary-custom small mb-1">Authorization Code
+                    (Password)</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-transparent border-secondary text-secondary" style="border-color: var(--border-color) !important; border-radius: 4px 0 0 4px;"><i class="bi bi-key"></i></span>
-                    <input type="password" class="form-control form-soc" id="password" name="password" placeholder="••••••••" required autocomplete="new-password" style="border-radius: 0 4px 4px 0 !important;">
+                    <span class="input-group-text bg-transparent border-secondary text-secondary"
+                        style="border-color: var(--border-color) !important; border-radius: 4px 0 0 4px;"><i
+                            class="bi bi-key"></i></span>
+                    <input type="password" class="form-control form-soc" id="password" name="password"
+                        placeholder="••••••••" required autocomplete="new-password"
+                        style="border-radius: 0 4px 4px 0 !important;">
                 </div>
             </div>
 
             <!-- Confirm Password Input -->
             <div class="mb-4">
-                <label for="confirm_password" class="form-label text-secondary-custom small mb-1">Verify Authorization Code</label>
+                <label for="confirm_password" class="form-label text-secondary-custom small mb-1">Verify Authorization
+                    Code</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-transparent border-secondary text-secondary" style="border-color: var(--border-color) !important; border-radius: 4px 0 0 4px;"><i class="bi bi-shield-check"></i></span>
-                    <input type="password" class="form-control form-soc" id="confirm_password" name="confirm_password" placeholder="••••••••" required autocomplete="new-password" style="border-radius: 0 4px 4px 0 !important;">
+                    <span class="input-group-text bg-transparent border-secondary text-secondary"
+                        style="border-color: var(--border-color) !important; border-radius: 4px 0 0 4px;"><i
+                            class="bi bi-shield-check"></i></span>
+                    <input type="password" class="form-control form-soc" id="confirm_password" name="confirm_password"
+                        placeholder="••••••••" required autocomplete="new-password"
+                        style="border-radius: 0 4px 4px 0 !important;">
                 </div>
             </div>
-            
+
             <!-- Submit Button -->
             <div class="d-grid mb-3">
                 <button type="submit" class="btn btn-soc-primary py-2">
@@ -55,9 +74,11 @@
                 </button>
             </div>
         </form>
-        
-        <div class="text-center mt-3 border-top border-secondary pt-3" style="border-color: var(--border-color) !important;">
-            <p class="text-secondary-custom small mb-0">Already possess keys? <a href="{{ url_for('auth.login') }}" class="text-primary text-decoration-none fw-medium">Authenticate Here</a></p>
+
+        <div class="text-center mt-3 border-top border-secondary pt-3"
+            style="border-color: var(--border-color) !important;">
+            <p class="text-secondary-custom small mb-0">Already possess keys? <a href="{{ url_for('auth.login') }}"
+                    class="text-primary text-decoration-none fw-medium">Authenticate Here</a></p>
         </div>
     </div>
 </div>
